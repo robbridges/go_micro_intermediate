@@ -1,1 +1,0 @@
-module go_micro_auth
