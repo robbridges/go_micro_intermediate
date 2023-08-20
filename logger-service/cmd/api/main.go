@@ -2,9 +2,13 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
+	"log-service/data"
+	"net/http"
+
 	"time"
 )
 
@@ -18,6 +22,7 @@ const (
 var client *mongo.Client
 
 type App struct {
+	Models data.Models
 }
 
 func main() {
@@ -26,6 +31,7 @@ func main() {
 		log.Panicln(err)
 	}
 
+	fmt.Println("Connected to Mongo")
 	client = mongoClient
 
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
@@ -36,6 +42,33 @@ func main() {
 			panic(err)
 		}
 	}()
+
+	app := App{
+		Models: data.New(client),
+	}
+	fmt.Println("Starting service on port", webPORT)
+	srv := &http.Server{
+		Addr:    fmt.Sprintf(":%s", webPORT),
+		Handler: app.routes(),
+	}
+
+	err = srv.ListenAndServe()
+	if err != nil {
+		log.Println("Error stating server: %s", err.Error())
+	}
+
+}
+
+func (app *App) serve() {
+	srv := &http.Server{
+		Addr:    fmt.Sprintf(":%s", webPORT),
+		Handler: app.routes(),
+	}
+
+	err := srv.ListenAndServe()
+	if err != nil {
+		log.Println("Error stating server")
+	}
 }
 
 func connectToMongo() (*mongo.Client, error) {
