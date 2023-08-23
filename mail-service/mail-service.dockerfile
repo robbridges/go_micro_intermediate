@@ -1,8 +1,8 @@
-#base go image
-FROM golang:1.20-alpine as builder
+FROM alpine:latest
 
 RUN mkdir /app
 
 COPY mailerServiceApp /app
+COPY templates /templates
 
 CMD [ "/app/mailerServiceApp"]
