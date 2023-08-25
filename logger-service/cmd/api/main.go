@@ -49,7 +49,7 @@ func main() {
 		Models: data.New(client),
 	}
 	// register a rpc server, and listen to it within a go routine
-	err = rpc.Register(new(RPCserver))
+	err = rpc.Register(new(RPCServer))
 
 	go app.rpcListen()
 
